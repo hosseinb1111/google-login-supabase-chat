@@ -2,200 +2,72 @@
 <html lang="en">
 <head>
   <meta charset="utf-8" />
-  <title>Free & Complicated Messenger — Sign in</title>
+  <title>Free & Complicated Messenger 😉✌️ — Login</title>
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="color-scheme" content="light dark" />
-  <link rel="preconnect" href="https://fonts.googleapis.com" />
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet" />
   <style>
     :root {
-      --ink: #15111f;
-      --panel: #1f1832;
-      --panel-2: #241b3a;
-      --paper: #f4f1fb;
-      --card: #ffffff;
-      --text: #221c33;
-      --muted: #6e6684;
-      --border: #e5e0f5;
-      --violet: #6c5ce7;
-      --violet-deep: #5541d6;
-      --amber: #ffb627;
-      --teal: #17c3b2;
-      --shadow: 0 24px 60px -20px rgba(21, 17, 31, 0.35);
-      --font-display: "Space Grotesk", system-ui, sans-serif;
-      --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
-      --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+      --bg: #0b0c0f;
+      --card: #111318;
+      --text: #eaeef7;
+      --muted: #a8b0c3;
+      --border: #1b1f28;
+      --shadow: rgba(0, 0, 0, 0.4);
     }
-
-    @media (prefers-color-scheme: dark) {
+    @media (prefers-color-scheme: light) {
       :root {
-        --paper: var(--ink);
-        --card: var(--panel);
-        --text: #eae6f7;
-        --muted: #a79bcb;
-        --border: #372a54;
-        --shadow: 0 24px 60px -20px rgba(0, 0, 0, 0.6);
+        --bg: #f7f9fc;
+        --card: #ffffff;
+        --text: #0b0c0f;
+        --muted: #5a6272;
+        --border: #e8ecf5;
+        --shadow: rgba(8, 23, 53, 0.08);
       }
     }
-
     * { box-sizing: border-box; }
-
     body {
-      margin: 0;
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      background:
-        radial-gradient(60% 50% at 15% 10%, color-mix(in srgb, var(--violet) 16%, transparent), transparent 60%),
-        radial-gradient(50% 40% at 90% 90%, color-mix(in srgb, var(--teal) 14%, transparent), transparent 60%),
-        var(--paper);
-      color: var(--text);
-      font: 500 16px/1.5 var(--font-body);
-      padding: 24px;
+      margin: 0; background: var(--bg);
+      min-height: 100vh; display: grid; place-items: center; color: var(--text);
+      font: 500 16px/1.4 system-ui, -apple-system, Segoe UI, Roboto, Inter, "Noto Sans", Arial;
     }
-
     .card {
-      width: min(92vw, 400px);
+      width: min(92vw, 420px);
       background: var(--card);
       border: 1px solid var(--border);
-      border-radius: 20px;
-      box-shadow: var(--shadow);
-      overflow: hidden;
-    }
-
-    .titlebar {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      padding: 12px 16px;
-      background: var(--ink);
-      color: #cfc7ea;
-    }
-
-    .titlebar .dots { display: flex; gap: 5px; }
-    .titlebar .dots span {
-      width: 7px; height: 7px; border-radius: 50%;
-      background: #46395f;
-    }
-    .titlebar .label {
-      margin-left: auto;
-      font-family: var(--font-mono);
-      font-size: 11px;
-      letter-spacing: 0.04em;
-      color: #8f81b8;
-    }
-    .presence {
-      width: 6px; height: 6px; border-radius: 50%;
-      background: var(--teal);
-      box-shadow: 0 0 0 0 rgba(23, 195, 178, 0.6);
-      animation: pulse 2.2s ease-out infinite;
-    }
-    @keyframes pulse {
-      0%   { box-shadow: 0 0 0 0 rgba(23, 195, 178, 0.55); }
-      70%  { box-shadow: 0 0 0 7px rgba(23, 195, 178, 0); }
-      100% { box-shadow: 0 0 0 0 rgba(23, 195, 178, 0); }
-    }
-
-    main.body {
-      padding: 40px 32px 32px;
+      border-radius: 16px;
+      box-shadow: 0 10px 30px var(--shadow);
+      padding: 28px;
       display: grid;
-      gap: 22px;
+      gap: 18px;
       text-align: center;
     }
-
-    .glyph {
-      justify-self: center;
-      width: 64px; height: 64px;
-      border-radius: 18px;
-      display: grid; place-items: center;
-      font-size: 30px;
-      background: linear-gradient(150deg, var(--violet), var(--violet-deep));
-      box-shadow: 0 10px 24px -8px color-mix(in srgb, var(--violet) 70%, transparent);
+    .logo {
+      font-size: 40px;
     }
-
     h1 {
-      margin: 0;
-      font-family: var(--font-display);
-      font-weight: 700;
-      font-size: 22px;
-      letter-spacing: -0.01em;
+      margin: 0; font-size: 20px; font-weight: 800;
     }
-
-    .tagline {
-      margin: 0;
-      color: var(--muted);
-      font-size: 13.5px;
+    p {
+      margin: 0; color: var(--muted); font-size: 14px;
     }
-
-    .tagline .sep { margin: 0 6px; opacity: 0.5; }
-
     .btn {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 13px 18px;
-      border-radius: 12px;
-      border: 1px solid var(--border);
-      background: var(--card);
-      color: var(--text);
-      font: 600 14.5px/1 var(--font-body);
-      cursor: pointer;
-      transition: transform 0.12s ease, box-shadow 0.2s ease, border-color 0.2s ease;
+      display: inline-flex; align-items: center; gap: 10px;
+      padding: 12px 16px; border-radius: 12px; border: 1px solid var(--border);
+      background: #fff; color: #0b0c0f; font-weight: 700; cursor: pointer;
+      text-decoration: none; user-select: none;
+      transition: transform .06s ease, box-shadow .2s ease;
     }
-    .btn:hover { transform: translateY(-1px); box-shadow: 0 10px 22px -12px rgba(21, 17, 31, 0.35); border-color: color-mix(in srgb, var(--violet) 35%, var(--border)); }
-    .btn:active { transform: translateY(0); }
-    .btn:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
-    .btn svg { flex-shrink: 0; }
-
-    .btn.disabled { opacity: 0.6; cursor: not-allowed; pointer-events: none; }
-
-    .status {
-      min-height: 16px;
-      font-size: 12.5px;
-      color: #d1495b;
+    @media (prefers-color-scheme: dark) {
+      .btn { background: #1b1f28; color: #eaeef7; }
     }
-
-    .fineprint {
+    .btn:hover { transform: translateY(-1px); }
+    .foot {
       color: var(--muted);
-      font-size: 11.5px;
-      font-family: var(--font-mono);
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      .presence { animation: none; }
+      font-size: 12px;
+      margin-top: 6px;
     }
   </style>
-</head>
-<body>
-  <main class="card">
-    <div class="titlebar">
-      <div class="dots"><span></span><span></span><span></span></div>
-      <div class="presence" aria-hidden="true"></div>
-      <span class="label">sign-in</span>
-    </div>
 
-    <div class="body">
-      <div class="glyph" aria-hidden="true">💬</div>
-      <h1>Free &amp; Complicated Messenger</h1>
-      <p class="tagline">Realtime chat, built on Supabase<span class="sep">·</span>free to run, mildly overengineered</p>
-
-      <button id="google-btn" class="btn" type="button">
-        <svg width="18" height="18" viewBox="0 0 18 18" aria-hidden="true">
-          <path fill="#4285F4" d="M17.64 9.2c0-.64-.06-1.25-.16-1.84H9v3.48h4.84a4.14 4.14 0 0 1-1.8 2.72v2.26h2.9c1.7-1.57 2.7-3.88 2.7-6.62z"/>
-          <path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.9-2.26c-.8.54-1.84.86-3.06.86-2.35 0-4.34-1.59-5.05-3.72H.98v2.33A9 9 0 0 0 9 18z"/>
-          <path fill="#FBBC05" d="M3.95 10.7A5.4 5.4 0 0 1 3.67 9c0-.59.1-1.17.28-1.7V4.97H.98A9 9 0 0 0 0 9c0 1.45.35 2.83.98 4.03l2.97-2.33z"/>
-          <path fill="#EA4335" d="M9 3.58c1.32 0 2.51.46 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0A9 9 0 0 0 .98 4.97l2.97 2.33C4.66 5.17 6.65 3.58 9 3.58z"/>
-        </svg>
-        <span id="btn-label">Continue with Google</span>
-      </button>
-
-      <p class="status" id="status" role="status"></p>
-      <p class="fineprint">made with ❤️ ☕</p>
-    </div>
-  </main>
-
+  <!-- Supabase import -->
   <script type="importmap">
     {
       "imports": {
@@ -203,44 +75,37 @@
       }
     }
   </script>
+</head>
+<body>
+  <main class="card">
+    <div class="logo">💬</div>
+    <h1>Free & Complicated Messenger 😉✌️</h1>
+    <p>Realtime Supabase chat • Google login</p>
+    <button id="google-btn" class="btn">Sign in with Google</button>
+    <div class="foot">made with ❤️☕️</div>
+  </main>
+
   <script type="module">
     import { createClient } from '@supabase/supabase-js'
 
-    // 🔹 Replace with your own Supabase project URL and anon/publishable key.
-    // Both are safe to expose client-side — access is enforced by your
-    // Row Level Security policies, not by keeping this key secret.
-    const SUPABASE_URL = 'https://fzjkpppzwiuozvszbbdl.supabase.co'
-    const SUPABASE_ANON_KEY = 'sb_publishable_ClRXbub_U_y3zA3E9oFdUg_vyzDiPtN'
+    // 🔹 Replace with YOUR project URL and anon public key
+    const supabaseUrl = 'https://fzjkpppzwiuozvszbbdl.supabase.co'
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImZ6amtwcHB6d2l1b3p2c3piYmRsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTYzODEwOTAsImV4cCI6MjA3MTk1NzA5MH0.32p6IZZYDIhd1RtPX8NgOv-kPjI-YBl5wCX5ajNnarg'
+    const supabase = createClient(supabaseUrl, supabaseKey)
 
-    const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY)
-
-    const googleBtn = document.getElementById('google-btn')
-    const statusEl = document.getElementById('status')
-    const btnLabel = document.getElementById('btn-label')
-
-    // Already signed in? Skip straight to the chat.
+    // If already logged in, skip to chat
     const { data: { session } } = await supabase.auth.getSession()
     if (session) {
-      location.replace('chat.html')
+      location.href = 'chat.html'
     }
 
-    googleBtn.addEventListener('click', async () => {
-      googleBtn.classList.add('disabled')
-      btnLabel.textContent = 'Redirecting to Google…'
-      statusEl.textContent = ''
-
+    document.getElementById('google-btn').addEventListener('click', async () => {
       const redirectTo = new URL('chat.html', location.href).toString()
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: { redirectTo }
       })
-
-      if (error) {
-        console.error('Login error:', error.message)
-        statusEl.textContent = `Couldn't start sign-in: ${error.message}`
-        googleBtn.classList.remove('disabled')
-        btnLabel.textContent = 'Continue with Google'
-      }
+      if (error) console.error('Login error:', error.message)
     })
   </script>
 </body>
