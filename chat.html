@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="color-scheme" content="light dark">
+    <title>Chat — Free & Complicated Messenger</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+    <script type="importmap">
+      { "imports": { "@supabase/supabase-js": "https://esm.sh/@supabase/supabase-js@2" } }
+    </script>
+    <style>
+        :root {
+            --ink: #15111f;
+            --panel: #1f1832;
+            --paper: #f4f1fb;
+            --card: #ffffff;
+            --text: #221c33;
+            --muted: #6e6684;
+            --border: #e5e0f5;
+            --violet: #6c5ce7;
+            --violet-deep: #5541d6;
+            --amber: #ffb627;
+            --teal: #17c3b2;
+            --coral: #ff5d5d;
+            --bubble: #f1eefb;
+            --bubble-own-from: #6c5ce7;
+            --bubble-own-to: #5541d6;
+            --shadow: 0 20px 50px -24px rgba(21, 17, 31, 0.35);
+            --radius-lg: 20px;
+            --transition: all 0.2s ease;
+            --font-display: "Space Grotesk", system-ui, sans-serif;
+            --font-body: "Inter", system-ui, -apple-system, "Segoe UI", sans-serif;
+            --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+        }
+
+        [data-theme="dark"] {
+            --paper: var(--ink);
+            --card: var(--panel);
+            --text: #eae6f7;
+            --muted: #a79bcb;
+            --border: #372a54;
+            --bubble: #291f45;
+            --shadow: 0 20px 50px -24px rgba(0, 0, 0, 0.6);
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: var(--font-body);
+            background:
+                radial-gradient(55% 45% at 12% 8%, color-mix(in srgb, var(--violet) 12%, transparent), transparent 60%),
+                radial-gradient(45% 35% at 92% 92%, color-mix(in srgb, var(--teal) 10%, transparent), transparent 60%),
+                var(--paper);
+            color: var(--text);
+            line-height: 1.55;
+            transition: var(--transition);
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .app-title { display: flex; align-items: center; gap: 12px; }
+
+        .app-title .glyph {
+            width: 38px; height: 38px;
+            border-radius: 11px;
+            display: grid; place-items: center;
+            font-size: 18px;
+            background: linear-gradient(150deg, var(--bubble-own-from), var(--bubble-own-to));
+            box-shadow: 0 8px 18px -8px color-mix(in srgb, var(--violet) 70%, transparent);
+            flex-shrink: 0;
+        }
+
+        .app-title h1 {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 1.3rem;
+            letter-spacing: -0.01em;
+        }
+
+        .app-title p {
+            color: var(--muted);
+            font-size: 0.8rem;
+            font-family: var(--font-mono);
+        }
+
+        .theme-toggle {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 8px 14px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font: 600 0.85rem/1 var(--font-body);
+            color: var(--text);
+            transition: var(--transition);
+            box-shadow: var(--shadow);
+        }
+
+        .theme-toggle:hover { transform: translateY(-1px); }
+        .theme-toggle:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
+
+        .main-card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow);
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            transition: var(--transition);
+            min-height: 0;
+        }
+
+        .titlebar {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 16px;
+            background: var(--ink);
+            color: #cfc7ea;
+            flex-shrink: 0;
+        }
+        .titlebar .dots { display: flex; gap: 5px; }
+        .titlebar .dots span { width: 7px; height: 7px; border-radius: 50%; background: #46395f; }
+        .titlebar .presence {
+            width: 6px; height: 6px; border-radius: 50%;
+            background: var(--teal);
+            animation: pulse 2.2s ease-out infinite;
+        }
+        .titlebar .label {
+            font-family: var(--font-mono);
+            font-size: 11px;
+            letter-spacing: 0.04em;
+            color: #8f81b8;
+        }
+        .titlebar .user-menu { margin-left: auto; display: flex; align-items: center; gap: 10px; }
+
+        @keyframes pulse {
+            0%   { box-shadow: 0 0 0 0 rgba(23, 195, 178, 0.55); }
+            70%  { box-shadow: 0 0 0 6px rgba(23, 195, 178, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(23, 195, 178, 0); }
+        }
+
+        .user-info { display: flex; align-items: center; gap: 8px; font-size: 0.82rem; color: #cfc7ea; }
+
+        .user-avatar {
+            width: 26px; height: 26px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 700; font-size: 0.7rem;
+            flex-shrink: 0;
+        }
+
+        .logout-btn {
+            background: transparent;
+            border: 1px solid #372a54;
+            border-radius: 20px;
+            padding: 5px 12px;
+            cursor: pointer;
+            font: 600 0.75rem/1 var(--font-body);
+            color: #cfc7ea;
+            transition: var(--transition);
+        }
+        .logout-btn:hover { background: rgba(255, 255, 255, 0.08); }
+        .logout-btn:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
+
+        .chat-container {
+            flex: 1;
+            overflow-y: auto;
+            padding: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+        }
+
+        .message {
+            display: flex;
+            gap: 12px;
+            animation: fadeIn 0.25s ease-out;
+            position: relative;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(8px); }
+            to   { opacity: 1; transform: translateY(0); }
+        }
+
+        .message.own { flex-direction: row-reverse; }
+
+        .avatar {
+            width: 36px; height: 36px;
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            color: white; font-weight: 700; font-size: 0.8rem;
+            flex-shrink: 0;
+        }
+
+        .message-content { max-width: 72%; }
+
+        .message-header { display: flex; align-items: baseline; gap: 8px; margin-bottom: 4px; }
+        .message.own .message-header { justify-content: flex-end; }
+
+        .username { font-weight: 700; font-size: 0.88rem; }
+
+        .timestamp { color: var(--muted); font-size: 0.72rem; font-family: var(--font-mono); }
+
+        .message-bubble {
+            background: var(--bubble);
+            padding: 10px 14px;
+            border-radius: 16px;
+            border-bottom-left-radius: 4px;
+            position: relative;
+            word-wrap: break-word;
+        }
+
+        .message.own .message-bubble {
+            background: linear-gradient(150deg, var(--bubble-own-from), var(--bubble-own-to));
+            color: #ffffff;
+            border-bottom-left-radius: 16px;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message-text { white-space: pre-wrap; }
+
+        .reply-preview {
+            background: rgba(0, 0, 0, 0.06);
+            border-left: 3px solid var(--violet);
+            padding: 6px 8px;
+            margin-bottom: 8px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.8rem;
+            color: var(--muted);
+        }
+        .message.own .reply-preview { background: rgba(255, 255, 255, 0.16); border-left-color: rgba(255, 255, 255, 0.7); color: rgba(255, 255, 255, 0.85); }
+        [data-theme="dark"] .reply-preview { background: rgba(255, 255, 255, 0.06); }
+
+        .message-actions {
+            display: flex;
+            gap: 4px;
+            margin-top: 6px;
+            opacity: 0;
+            transition: var(--transition);
+        }
+        .message:hover .message-actions,
+        .message:focus-within .message-actions { opacity: 1; }
+        .message.own .message-actions { justify-content: flex-end; }
+
+        .action-btn {
+            background: transparent;
+            border: none;
+            color: var(--muted);
+            cursor: pointer;
+            font: 600 0.76rem/1 var(--font-body);
+            padding: 4px 8px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            transition: var(--transition);
+        }
+        .action-btn:hover { background: var(--bubble); color: var(--text); }
+        .action-btn:focus-visible { outline: 2px solid var(--violet); outline-offset: 1px; }
+        [data-theme="dark"] .action-btn:hover { background: rgba(255, 255, 255, 0.08); }
+
+        .reaction-btn { display: flex; align-items: center; gap: 4px; }
+        .reaction-count { font-size: 0.75rem; font-family: var(--font-mono); }
+
+        .composer-container {
+            padding: 14px 16px;
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+        }
+
+        .reply-bar {
+            background: var(--bubble);
+            padding: 9px 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            font-size: 0.85rem;
+        }
+        .reply-info { color: var(--muted); }
+        .reply-info strong { color: var(--text); }
+
+        .reply-cancel {
+            background: transparent;
+            border: none;
+            color: var(--coral);
+            cursor: pointer;
+            font: 600 0.82rem/1 var(--font-body);
+            padding: 4px 8px;
+            border-radius: 6px;
+            transition: var(--transition);
+        }
+        .reply-cancel:hover { background: rgba(255, 93, 93, 0.12); }
+
+        .composer { display: flex; gap: 10px; align-items: flex-end; }
+
+        .message-input {
+            flex: 1;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 12px 14px;
+            background: var(--paper);
+            color: var(--text);
+            resize: none;
+            font: 500 0.95rem/1.4 var(--font-body);
+            transition: var(--transition);
+        }
+        .message-input:focus { outline: none; border-color: var(--violet); box-shadow: 0 0 0 3px color-mix(in srgb, var(--violet) 18%, transparent); }
+
+        .send-btn {
+            background: linear-gradient(150deg, var(--bubble-own-from), var(--bubble-own-to));
+            color: white;
+            border: none;
+            border-radius: 14px;
+            padding: 0 20px;
+            height: 44px;
+            cursor: pointer;
+            font: 700 0.9rem/1 var(--font-body);
+            transition: var(--transition);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+        .send-btn:hover:not(:disabled) { filter: brightness(1.08); transform: translateY(-1px); }
+        .send-btn:focus-visible { outline: 2px solid var(--violet); outline-offset: 2px; }
+        .send-btn:disabled { background: var(--border); color: var(--muted); cursor: not-allowed; }
+
+        footer { text-align: center; margin-top: 14px; color: var(--muted); font-size: 0.78rem; font-family: var(--font-mono); }
+
+        .loading { display: flex; justify-content: center; align-items: center; height: 100%; color: var(--muted); }
+
+        .empty-state {
+            display: flex; flex-direction: column; align-items: center; justify-content: center;
+            height: 100%; color: var(--muted); text-align: center; gap: 10px;
+        }
+        .empty-state h3 { font-family: var(--font-display); color: var(--text); font-size: 1.05rem; }
+        .empty-icon { font-size: 2.6rem; }
+
+        .error-state { padding: 24px; text-align: left; max-width: 460px; margin: 0 auto; }
+        .error-state h3 { color: var(--coral); font-family: var(--font-display); margin-bottom: 10px; text-align: center; }
+        .error-state > p { text-align: center; color: var(--muted); }
+
+        .error-state pre {
+            background: var(--bubble);
+            padding: 12px;
+            border-radius: 10px;
+            overflow-x: auto;
+            margin: 12px 0;
+            font-size: 0.78rem;
+            font-family: var(--font-mono);
+        }
+
+        .error-state ol { margin: 10px 0 10px 20px; color: var(--muted); font-size: 0.9rem; }
+        .error-state li { margin-bottom: 5px; }
+
+        .diagnostic-btn {
+            display: block;
+            margin: 14px auto 0;
+            background: var(--violet);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            padding: 9px 18px;
+            cursor: pointer;
+            font: 700 0.85rem/1 var(--font-body);
+        }
+        .diagnostic-btn:hover { background: var(--violet-deep); }
+
+        @media (max-width: 768px) {
+            .container { padding: 10px; }
+            .app-title h1 { font-size: 1.1rem; }
+            .app-title p { display: none; }
+            .message-content { max-width: 85%; }
+            .titlebar .user-menu .user-info span { display: none; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            .titlebar .presence, .message { animation: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <div class="app-title">
+                <div class="glyph" aria-hidden="true">💬</div>
+                <div>
+                    <h1>Free &amp; Complicated Messenger</h1>
+                    <p>replies · edits · reactions · realtime</p>
+                </div>
+            </div>
+            <button class="theme-toggle" id="themeToggle" type="button" aria-label="Toggle color theme">
+                <span class="theme-icon">🌙</span><span class="theme-text">Dark</span>
+            </button>
+        </header>
+
+        <div class="main-card">
+            <div class="titlebar">
+                <div class="dots"><span></span><span></span><span></span></div>
+                <div class="presence" aria-hidden="true"></div>
+                <span class="label">live</span>
+                <div class="user-menu">
+                    <div class="user-info">
+                        <div class="user-avatar" id="userAvatar"></div>
+                        <span id="username"></span>
+                    </div>
+                    <button class="logout-btn" id="logoutBtn" type="button">Log out</button>
+                </div>
+            </div>
+
+            <div class="chat-container" id="chatContainer">
+                <div class="loading">
+                    <div>Loading messages…</div>
+                </div>
+            </div>
+
+            <div class="composer-container">
+                <div class="reply-bar" id="replyBar">
+                    <div class="reply-info">Replying to <strong id="replyToUsername"></strong></div>
+                    <button class="reply-cancel" id="cancelReply" type="button">Cancel</button>
+                </div>
+                <div class="composer">
+                    <textarea
+                        class="message-input"
+                        id="messageInput"
+                        placeholder="Type a message…"
+                        rows="1"
+                    ></textarea>
+                    <button class="send-btn" id="sendBtn" type="button" disabled>Send</button>
+                </div>
+            </div>
+        </div>
+
+        <footer>made with ❤️ ☕</footer>
+    </div>
+
+    <script type="module">
+        import { createClient } from '@supabase/supabase-js'
+
+        // 🔹 Replace with your own Supabase project URL and anon/publishable key
+        // (same values as login.html — keep the two in sync).
+        const SUPABASE_URL = 'https://fzjkpppzwiuozvszbbdl.supabase.co';
+        const SUPABASE_ANON_KEY = 'sb_publishable_ClRXbub_U_y3zA3E9oFdUg_vyzDiPtN';
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // DOM Elements
+        const chatContainer = document.getElementById('chatContainer');
+        const messageInput = document.getElementById('messageInput');
+        const sendBtn = document.getElementById('sendBtn');
+        const themeToggle = document.getElementById('themeToggle');
+        const themeIcon = document.querySelector('.theme-icon');
+        const themeText = document.querySelector('.theme-text');
+        const replyBar = document.getElementById('replyBar');
+        const replyToUsername = document.getElementById('replyToUsername');
+        const cancelReply = document.getElementById('cancelReply');
+        const userAvatar = document.getElementById('userAvatar');
+        const usernameEl = document.getElementById('username');
+        const logoutBtn = document.getElementById('logoutBtn');
+
+        // State
+        let currentUser = null;
+        let currentUsername = '';
+        let currentTheme = localStorage.getItem('theme') || 'light';
+        let replyingTo = null;
+        let messages = []; // Store all messages for reply lookups
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', async () => {
+            const { data: { user }, error } = await supabase.auth.getUser();
+
+            if (error || !user) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            currentUser = user;
+            currentUsername = user.user_metadata.full_name || user.email || 'User';
+
+            usernameEl.textContent = currentUsername;
+            userAvatar.textContent = getInitials(currentUsername);
+            userAvatar.style.backgroundColor = generateAvatarColor(currentUsername);
+
+            applyTheme(currentTheme);
+            setupEventListeners();
+            fetchMessages();
+            setupRealtimeSubscription();
+        });
+
+        // Theme Management
+        function applyTheme(theme) {
+            if (theme === 'dark') {
+                document.documentElement.setAttribute('data-theme', 'dark');
+                if (themeIcon) themeIcon.textContent = '☀️';
+                if (themeText) themeText.textContent = 'Light';
+            } else {
+                document.documentElement.removeAttribute('data-theme');
+                if (themeIcon) themeIcon.textContent = '🌙';
+                if (themeText) themeText.textContent = 'Dark';
+            }
+            currentTheme = theme;
+            localStorage.setItem('theme', theme);
+        }
+
+        function setupEventListeners() {
+            if (themeToggle) {
+                themeToggle.addEventListener('click', () => {
+                    applyTheme(currentTheme === 'light' ? 'dark' : 'light');
+                });
+            }
+
+            messageInput.addEventListener('input', () => {
+                sendBtn.disabled = messageInput.value.trim() === '';
+                autoGrow();
+            });
+
+            messageInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    sendMessage();
+                }
+            });
+
+            sendBtn.addEventListener('click', sendMessage);
+
+            cancelReply.addEventListener('click', () => {
+                replyingTo = null;
+                replyBar.style.display = 'none';
+                messageInput.focus();
+            });
+
+            logoutBtn.addEventListener('click', async () => {
+                await supabase.auth.signOut();
+                window.location.href = 'login.html';
+            });
+        }
+
+        function autoGrow() {
+            messageInput.style.height = 'auto';
+            messageInput.style.height = Math.min(messageInput.scrollHeight, 140) + 'px';
+        }
+
+        // Message Functions
+        async function fetchMessages() {
+            try {
+                const { data, error } = await supabase
+                    .from('messages')
+                    .select('*')
+                    .order('created_at', { ascending: true });
+
+                if (error) {
+                    handleFetchError(error);
+                    return;
+                }
+
+                if (data && data.length > 0) {
+                    messages = data;
+                    renderMessages(data);
+                    scrollToBottom();
+                } else {
+                    showEmptyState();
+                }
+            } catch (error) {
+                handleFetchError(error);
+            }
+        }
+
+        function handleFetchError(error) {
+            console.error('Fetch error:', error);
+            if (error.code === '42P01' || (error.message && error.message.includes('does not exist'))) {
+                displayTableCreationMessage();
+            } else {
+                displayErrorMessage(error.message || 'Unknown error occurred');
+            }
+        }
+
+        function displayTableCreationMessage() {
+            chatContainer.innerHTML = `
+                <div class="error-state">
+                    <h3>Database table missing</h3>
+                    <p>The <code>messages</code> table doesn't exist in your Supabase database yet. Run this in the Supabase SQL editor:</p>
+                    <pre>CREATE TABLE messages (
+  id BIGINT GENERATED BY DEFAULT AS IDENTITY PRIMARY KEY,
+  username TEXT NOT NULL,
+  text TEXT NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+  reply_to BIGINT REFERENCES messages(id),
+  reactions JSONB DEFAULT '{}'
+);</pre>
+                    <p>Then enable Realtime for it:</p>
+                    <ol>
+                        <li>Open your Supabase project dashboard</li>
+                        <li>Go to <strong>Database → Replication</strong></li>
+                        <li>Find the <code>messages</code> table and turn Realtime on</li>
+                    </ol>
+                    <button class="diagnostic-btn" onclick="location.reload()">Refresh page</button>
+                </div>
+            `;
+        }
+
+        function displayErrorMessage(message) {
+            chatContainer.innerHTML = `
+                <div class="error-state">
+                    <h3>Couldn't load messages</h3>
+                    <p>${escapeHtml(message)}</p>
+                    <button class="diagnostic-btn" onclick="runDiagnostics()">Run diagnostics</button>
+                </div>
+            `;
+        }
+
+        function showEmptyState() {
+            chatContainer.innerHTML = `
+                <div class="empty-state">
+                    <div class="empty-icon">💬</div>
+                    <h3>No messages yet</h3>
+                    <p>Say something to get the conversation started.</p>
+                </div>
+            `;
+        }
+
+        function renderMessages(messages) {
+            chatContainer.innerHTML = '';
+            messages.forEach(message => {
+                chatContainer.appendChild(createMessageElement(message));
+            });
+        }
+
+        function createMessageElement(message) {
+            const isOwn = message.username === currentUsername;
+            const messageEl = document.createElement('div');
+            messageEl.className = `message ${isOwn ? 'own' : ''}`;
+            messageEl.dataset.id = message.id;
+
+            const avatarColor = generateAvatarColor(message.username);
+            const initials = getInitials(message.username);
+            const timestamp = formatTimestamp(message.created_at);
+
+            let replyPreview = '';
+            if (message.reply_to) {
+                const repliedMessage = messages.find(m => m.id === message.reply_to);
+                if (repliedMessage) {
+                    replyPreview = `
+                        <div class="reply-preview">
+                            <strong>${escapeHtml(repliedMessage.username)}:</strong> ${escapeHtml(truncateText(repliedMessage.text, 50))}
+                        </div>
+                    `;
+                }
+            }
+
+            const reactions = message.reactions || {};
+            const likeCount = reactions['👍'] || 0;
+            const dislikeCount = reactions['👎'] || 0;
+
+            messageEl.innerHTML = `
+                <div class="avatar" style="background-color: ${avatarColor}">${initials}</div>
+                <div class="message-content">
+                    <div class="message-header">
+                        <span class="username">${escapeHtml(message.username)}</span>
+                        <span class="timestamp">${timestamp}</span>
+                    </div>
+                    <div class="message-bubble">
+                        ${replyPreview}
+                        <div class="message-text">${escapeHtml(message.text)}</div>
+                    </div>
+                    <div class="message-actions">
+                        <button class="action-btn" onclick="replyToMessage(${message.id}, '${escapeHtml(message.username)}')">
+                            Reply
+                        </button>
+                        ${isOwn ? `
+                            <button class="action-btn" onclick="editMessage(${message.id})">
+                                Edit
+                            </button>
+                            <button class="action-btn" onclick="deleteMessage(${message.id})">
+                                Delete
+                            </button>
+                        ` : ''}
+                        <button class="action-btn reaction-btn" onclick="addReaction(${message.id}, '👍')">
+                            👍 <span class="reaction-count">${likeCount > 0 ? likeCount : ''}</span>
+                        </button>
+                        <button class="action-btn reaction-btn" onclick="addReaction(${message.id}, '👎')">
+                            👎 <span class="reaction-count">${dislikeCount > 0 ? dislikeCount : ''}</span>
+                        </button>
+                    </div>
+                </div>
+            `;
+
+            return messageEl;
+        }
+
+        async function sendMessage() {
+            const text = messageInput.value.trim();
+            if (!text) return;
+
+            try {
+                const { error } = await supabase
+                    .from('messages')
+                    .insert([{ username: currentUsername, text, reply_to: replyingTo }])
+                    .select();
+
+                if (error) {
+                    alert('Error sending message: ' + error.message);
+                    return;
+                }
+
+                messageInput.value = '';
+                autoGrow();
+                sendBtn.disabled = true;
+                if (replyingTo) {
+                    replyingTo = null;
+                    replyBar.style.display = 'none';
+                }
+                messageInput.focus();
+            } catch (error) {
+                alert('Error sending message: ' + error.message);
+            }
+        }
+
+        function replyToMessage(messageId, username) {
+            replyingTo = messageId;
+            replyToUsername.textContent = username;
+            replyBar.style.display = 'flex';
+            messageInput.focus();
+        }
+
+        async function editMessage(messageId) {
+            const messageEl = document.querySelector(`.message[data-id="${messageId}"]`);
+            const textEl = messageEl.querySelector('.message-text');
+            const currentText = textEl.textContent;
+
+            const newText = prompt('Edit your message:', currentText);
+            if (newText === null || newText === currentText) return;
+
+            try {
+                const { error } = await supabase
+                    .from('messages')
+                    .update({ text: newText })
+                    .eq('id', messageId);
+
+                if (error) alert('Error editing message: ' + error.message);
+            } catch (error) {
+                alert('Error editing message: ' + error.message);
+            }
+        }
+
+        async function deleteMessage(messageId) {
+            if (!confirm('Delete this message?')) return;
+
+            try {
+                const { error } = await supabase
+                    .from('messages')
+                    .delete()
+                    .eq('id', messageId);
+
+                if (error) alert('Error deleting message: ' + error.message);
+            } catch (error) {
+                alert('Error deleting message: ' + error.message);
+            }
+        }
+
+        async function addReaction(messageId, reaction) {
+            try {
+                const { data: message, error: fetchError } = await supabase
+                    .from('messages')
+                    .select('reactions')
+                    .eq('id', messageId)
+                    .single();
+
+                if (fetchError) return;
+
+                const reactions = message.reactions || {};
+                reactions[reaction] = (reactions[reaction] || 0) + 1;
+
+                await supabase.from('messages').update({ reactions }).eq('id', messageId);
+            } catch (error) {
+                console.error('Error adding reaction:', error);
+            }
+        }
+
+        // Realtime Subscription
+        function setupRealtimeSubscription() {
+            supabase
+                .channel('messages')
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'messages' }, handleRealtimeEvent)
+                .subscribe();
+        }
+
+        function handleRealtimeEvent(payload) {
+            const { eventType, new: newRecord, old: oldRecord } = payload;
+
+            switch (eventType) {
+                case 'INSERT':
+                    messages.push(newRecord);
+                    addMessageToUI(newRecord);
+                    scrollToBottom();
+                    break;
+                case 'UPDATE': {
+                    const index = messages.findIndex(m => m.id === newRecord.id);
+                    if (index !== -1) messages[index] = newRecord;
+                    updateMessageInUI(newRecord);
+                    break;
+                }
+                case 'DELETE':
+                    messages = messages.filter(m => m.id !== oldRecord.id);
+                    removeMessageFromUI(oldRecord.id);
+                    break;
+            }
+        }
+
+        function addMessageToUI(message) {
+            const emptyState = chatContainer.querySelector('.empty-state');
+            if (emptyState) emptyState.remove();
+            chatContainer.appendChild(createMessageElement(message));
+        }
+
+        function updateMessageInUI(updatedMessage) {
+            const messageEl = document.querySelector(`.message[data-id="${updatedMessage.id}"]`);
+            if (messageEl) messageEl.replaceWith(createMessageElement(updatedMessage));
+        }
+
+        function removeMessageFromUI(messageId) {
+            const messageEl = document.querySelector(`.message[data-id="${messageId}"]`);
+            if (messageEl) {
+                messageEl.remove();
+                if (chatContainer.children.length === 0) showEmptyState();
+            }
+        }
+
+        // Diagnostics
+        async function runDiagnostics() {
+            chatContainer.innerHTML = '<div class="loading">Running diagnostics…</div>';
+
+            try {
+                const { error } = await supabase.from('messages').select('count', { count: 'exact', head: true });
+
+                if (error) {
+                    if (error.code === '42P01') {
+                        displayTableCreationMessage();
+                    } else {
+                        displayErrorMessage(`Connection error: ${error.message}`);
+                    }
+                    return;
+                }
+
+                chatContainer.innerHTML = `
+                    <div class="error-state">
+                        <h3>Diagnostics complete</h3>
+                        <p>✅ Supabase connection successful</p>
+                        <p>✅ Messages table exists</p>
+                        <p>⚠️ Double-check Realtime is enabled in the Supabase dashboard</p>
+                        <button class="diagnostic-btn" onclick="location.reload()">Reload page</button>
+                    </div>
+                `;
+            } catch (error) {
+                displayErrorMessage(`Diagnostic error: ${error.message}`);
+            }
+        }
+
+        // Utility Functions
+        function generateAvatarColor(username) {
+            let hash = 0;
+            for (let i = 0; i < username.length; i++) {
+                hash = username.charCodeAt(i) + ((hash << 5) - hash);
+            }
+            const h = hash % 360;
+            return `hsl(${h}, 62%, 52%)`;
+        }
+
+        function getInitials(username) {
+            return username
+                .split(' ')
+                .map(name => name.charAt(0).toUpperCase())
+                .join('')
+                .substring(0, 2);
+        }
+
+        function formatTimestamp(timestamp) {
+            const date = new Date(timestamp);
+            return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function escapeHtml(text) {
+            const map = { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#039;' };
+            return String(text).replace(/[&<>"']/g, m => map[m]);
+        }
+
+        function truncateText(text, maxLength) {
+            if (text.length <= maxLength) return text;
+            return text.substring(0, maxLength) + '...';
+        }
+
+        function scrollToBottom() {
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+
+        // Expose handlers used by inline onclick attributes
+        window.replyToMessage = replyToMessage;
+        window.editMessage = editMessage;
+        window.deleteMessage = deleteMessage;
+        window.addReaction = addReaction;
+        window.runDiagnostics = runDiagnostics;
+    </script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Free & Complicated Messenger</title>
+  <!-- login.html decides where the visitor actually belongs: back to chat.html
+       if they already have a session, or the sign-in screen if not. -->
+  <meta http-equiv="refresh" content="0;url=login.html" />
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      background: #15111f;
+      color: #eae6f7;
+      font: 500 15px/1.5 system-ui, -apple-system, "Segoe UI", Roboto, Arial, sans-serif;
+    }
+    a { color: #a99bf7; }
+  </style>
+  <script>
+    window.location.replace('login.html');
+  </script>
+</head>
+<body>
+  <p>Redirecting&hellip; if nothing happens, <a href="login.html">click here</a>.</p>
+</body>
+</html>
